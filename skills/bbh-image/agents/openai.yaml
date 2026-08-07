@@ -1,0 +1,4 @@
+interface:
+  display_name: "BBH Image"
+  short_description: "通过 BBH OpenAPI 查询模型、积分、任务并生成图片"
+  default_prompt: "Use $bbh-image to generate an image with BBH OpenAPI."
