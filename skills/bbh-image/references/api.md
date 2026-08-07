@@ -6,6 +6,7 @@
 - Authentication header: `X-API-Key: <key>`
 - JSON responses normally use `{ "code": 200, "data": ..., "message": ... }`.
 - Treat non-2xx HTTP responses and JSON responses whose `code` is present but not `200` as errors.
+- The CLI auto-detects common macOS and Linux CA bundles. Set `BBH_CA_BUNDLE` only when a custom trust bundle is required.
 
 ## Endpoints
 

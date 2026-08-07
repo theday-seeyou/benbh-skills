@@ -8,6 +8,7 @@ import base64
 import json
 import mimetypes
 import os
+import ssl
 import sys
 import time
 import uuid
@@ -19,6 +20,12 @@ from urllib.request import Request, urlopen
 
 
 DEFAULT_BASE_URL = "https://bbh-ai-server.benbh.cn"
+CA_BUNDLE_CANDIDATES = (
+    "/etc/ssl/cert.pem",
+    "/opt/homebrew/etc/ca-certificates/cert.pem",
+    "/etc/ssl/certs/ca-certificates.crt",
+    "/etc/pki/tls/certs/ca-bundle.crt",
+)
 SUCCESS_STATUSES = {"completed", "succeeded", "success"}
 FAILURE_STATUSES = {"failed", "error", "cancelled", "canceled", "timeout"}
 
@@ -59,6 +66,7 @@ class BBHClient:
             raise BBHConfigError("BBH_API_KEY is required")
         if self.timeout <= 0:
             raise BBHConfigError("Request timeout must be greater than 0")
+        self.ssl_context = build_ssl_context()
 
     def request(
         self,
@@ -84,7 +92,7 @@ class BBHClient:
 
         request = Request(url, data=request_body, headers=request_headers, method=method.upper())
         try:
-            with urlopen(request, timeout=self.timeout) as response:
+            with urlopen(request, timeout=self.timeout, context=self.ssl_context) as response:
                 status = response.status
                 raw = response.read()
         except HTTPError as error:
@@ -169,6 +177,22 @@ def decode_response(raw: bytes) -> Any:
         return json.loads(text)
     except json.JSONDecodeError:
         return text
+
+
+def build_ssl_context() -> ssl.SSLContext:
+    configured = os.getenv("BBH_CA_BUNDLE")
+    if configured:
+        ca_bundle = Path(configured).expanduser()
+        if not ca_bundle.is_file():
+            raise BBHConfigError(f"BBH_CA_BUNDLE file not found: {ca_bundle}")
+        return ssl.create_default_context(cafile=str(ca_bundle))
+
+    default_paths = ssl.get_default_verify_paths()
+    candidates = [os.getenv("SSL_CERT_FILE"), default_paths.cafile, *CA_BUNDLE_CANDIDATES]
+    for candidate in candidates:
+        if candidate and Path(candidate).is_file():
+            return ssl.create_default_context(cafile=candidate)
+    return ssl.create_default_context()
 
 
 def response_message(payload: Any) -> str:

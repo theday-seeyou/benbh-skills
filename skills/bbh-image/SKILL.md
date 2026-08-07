@@ -21,6 +21,7 @@ Optional environment variables:
 
 - `BBH_BASE_URL`: defaults to `https://bbh-ai-server.benbh.cn`
 - `BBH_REQUEST_TIMEOUT`: per-request timeout in seconds; defaults to `30`
+- `BBH_CA_BUNDLE`: custom CA certificate bundle; normally auto-detected
 
 ## Workflow
 
