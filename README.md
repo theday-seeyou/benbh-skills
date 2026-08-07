@@ -10,7 +10,13 @@ Generate images through the BBH OpenAPI from Codex or a terminal. It includes a 
 
 ## Install
 
-In Codex, invoke `$skill-installer` and ask it to install:
+Install globally for Codex with one command:
+
+```bash
+npx skills add theday-seeyou/benbh-skills --skill bbh-image -g -a codex -y
+```
+
+You can also give Codex's built-in `$skill-installer` this URL:
 
 ```text
 https://github.com/theday-seeyou/benbh-skills/tree/main/skills/bbh-image
